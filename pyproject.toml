@@ -1,0 +1,91 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "radixhopper"
+dynamic = ["version"]
+description = 'A Python library for efficient radix-based number system conversions, specializing in cyclic fractions handling, for bases 2 through 36'
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+keywords = []
+authors = [
+  { name = "Aarmn the limitless", email = "aarmn80@gmail.com" },
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+]
+dependencies = []
+
+[project.urls]
+Documentation = "https://github.com/Aarmn the limitless/radixhopper#readme"
+Issues = "https://github.com/Aarmn the limitless/radixhopper/issues"
+Source = "https://github.com/Aarmn the limitless/radixhopper"
+
+[tool.hatch.version]
+path = "src/radixhopper/__about__.py"
+
+[tool.hatch.envs.types]
+extra-dependencies = [
+  "mypy>=1.0.0",
+]
+[tool.hatch.envs.types.scripts]
+check = "mypy --install-types --non-interactive {args:src/radixhopper tests}"
+[tool.hatch.envs.default]
+dependencies = [
+  "pytest",
+  "pytest-cov",
+]
+
+[tool.hatch.envs.default.scripts]
+test = "pytest {args:tests}"
+test-cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=radixhopper --cov=tests {args:tests}"
+
+[tool.coverage.run]
+source_pkgs = ["radixhopper", "tests"]
+branch = true
+parallel = true
+omit = [
+  "src/radixhopper/__about__.py",
+]
+
+[tool.coverage.paths]
+radixhopper = ["src/radixhopper", "*/radixhopper/src/radixhopper"]
+tests = ["tests", "*/radixhopper/tests"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=6.0",
+    "pytest-cov>=2.0",
+    "black>=21.0",
+    "isort>=5.0",
+    "flake8>=3.9",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
+
+[tool.isort]
+profile = "black"
+line_length = 88
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = "E203"
