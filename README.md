@@ -3,6 +3,8 @@
 [![PyPI - Version](https://img.shields.io/pypi/v/radixhopper.svg)](https://pypi.org/project/radixhopper)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/radixhopper.svg)](https://pypi.org/project/radixhopper)
 
+-----
+
 🌟 Hop between number bases with ease! 🌟
 
 RadixHopper is a Python library for efficient radix-based number system conversions, specializing in cyclic fractions handling, for bases 2 through 36.
@@ -32,7 +34,7 @@ from radixhopper import BaseConverter, ConversionInput
 
 input_data = ConversionInput(num="3.14", base_from=10, base_to=2)
 result = BaseConverter.base_convert(input_data)
-print(result)  # Output: 11.00100100001111110...
+print(result)  # Output: 11.0[01000111101011100001]
 ```
 
 ### CLI
@@ -56,6 +58,12 @@ We welcome contributions! Please check our [Issues](https://github.com/Aarmn the
 ## 📜 License
 
 `radixhopper` is distributed under the terms of the [MIT](https://spdx.org/licenses/MIT.html) license.
+
+## ✅ TODO
+
+ - [ ] Make it an actual pip package
+ - [ ] Improve data taking in and out structure
+ - [ ] click 
 
 ## 🌠 Star Gazing
 

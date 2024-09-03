@@ -85,3 +85,6 @@ class BaseConverter:
         i_int, f_frac = BaseConverter._int_out(BaseConverter._any_to_frac(i_str, fp_str, fp_rep_str, input_data.base_from, input_data.digits))
         return (BaseConverter._frac_to_any(i_int, input_data.base_to, True, input_data.digits) + 
                 "." + BaseConverter._frac_to_any(f_frac, input_data.base_to, False, input_data.digits))
+    
+
+# handle zero

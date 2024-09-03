@@ -1,4 +1,4 @@
-import click
+import fire
 from rich.console import Console
 from rich.panel import Panel
 from rich.text import Text
@@ -6,13 +6,9 @@ from radixhopper import BaseConverter, ConversionInput, ConversionError
 
 console = Console()
 
-@click.command()
-@click.option('--num', prompt='Enter number to convert', help='Number to convert')
-@click.option('--base-from', type=int, prompt='Enter base to convert from', help='Base to convert from')
-@click.option('--base-to', type=int, prompt='Enter base to convert to', help='Base to convert to')
 def convert(num, base_from, base_to):
     try:
-        input_data = ConversionInput(num=num, base_from=base_from, base_to=base_to)
+        input_data = ConversionInput(num=str(num), base_from=base_from, base_to=base_to)
         result = BaseConverter.base_convert(input_data)
         
         if '[' in result and ']' in result:
@@ -30,7 +26,10 @@ def convert(num, base_from, base_to):
     except ConversionError as e:
         console.print(f"[bold red]Error:[/bold red] {str(e)}")
     except Exception as e:
-        console.print("[bold red]An unexpected error occurred. Please check your input and try again.[/bold red]")
+        console.print(f"[bold red]An unexpected error occurred. Please check your input and try again. Details:[/bold red]\n{str(e)}")
+
+def main():
+    fire.Fire(convert)
 
 if __name__ == '__main__':
-    convert()
+    main()

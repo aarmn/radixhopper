@@ -1,0 +1,55 @@
+
+
+
+
+[tool.hatch.version]
+path = "src/radixhopper/__about__.py"
+
+mypy
+"pytest",
+"pytest-cov",
+[tool.hatch.envs.default.scripts]
+test = "pytest {args:tests}"
+test-cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=radixhopper --cov=tests {args:tests}"
+
+[tool.coverage.run]
+source_pkgs = ["radixhopper", "tests"]
+branch = true
+parallel = true
+omit = [
+  "src/radixhopper/__about__.py",
+]
+
+[tool.coverage.paths]
+radixhopper = ["src/radixhopper", "*/radixhopper/src/radixhopper"]
+tests = ["tests", "*/radixhopper/tests"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=6.0",
+    "pytest-cov>=2.0",
+    "black>=21.0",
+    "isort>=5.0",
+    "flake8>=3.9",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
+
+[tool.isort]
+profile = "black"
+line_length = 88
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = "E203"
+
+ruff?
