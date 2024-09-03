@@ -53,7 +53,7 @@ streamlit run radixhopper/st.py
 
 ## 🌟 Contributing
 
-We welcome contributions! Please check our [Issues](https://github.com/Aarmn the limitless/radixhopper/issues) page for open tasks or suggest new features.
+We welcome contributions! Please check our [Issues](https://github.com/aarmn/radixhopper/issues) page for open tasks or suggest new features.
 
 ## 📜 License
 
@@ -61,9 +61,9 @@ We welcome contributions! Please check our [Issues](https://github.com/Aarmn the
 
 ## ✅ TODO
 
- - [x] Make it an actual pip package
- - [ ] Improve data taking in and out structure
- - [x] click 
+- [x] Make it an actual pip package
+- [ ] Improve data taking in and out structure
+- [x] CLI interface using fire
 
 ## 🌠 Star Gazing
 
