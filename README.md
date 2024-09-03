@@ -61,9 +61,9 @@ We welcome contributions! Please check our [Issues](https://github.com/Aarmn the
 
 ## ✅ TODO
 
- - [ ] Make it an actual pip package
+ - [x] Make it an actual pip package
  - [ ] Improve data taking in and out structure
- - [ ] click 
+ - [x] click 
 
 ## 🌠 Star Gazing
 
