@@ -69,6 +69,7 @@ dev = [
     "black>=21.0",
     "isort>=5.0",
     "flake8>=3.9",
+    "toml-to-req"
 ]
 streamlit = [
     "streamlit",

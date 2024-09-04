@@ -62,8 +62,22 @@ We welcome contributions! Please check our [Issues](https://github.com/aarmn/rad
 ## ✅ TODO
 
 - [x] Make it an actual pip package
-- [ ] Improve data taking in and out structure
 - [x] CLI interface using fire
+- [ ] Deploy on streamlit cloud, vercel, github action, netlify or smth else, on my subdomain.
+- [ ] Add a better hint in web GUI for signs and stuff
+- [ ] Improve Readme.md with examples and images and badges and re-read
+- [ ] Typing and DX of library improve
+- [ ] DevOps workflow setup
+  - [ ] `.github` and test offline using `act`
+  - [ ] mypy
+  - [ ] tox
+  - [ ] pytest
+  - [ ] pytest-cov
+  - [ ] black
+  - [ ] isort
+  - [ ] flake8
+  - [ ] just file improve
+- [ ] Improve data taking in and out structure
 
 ## 🌠 Star Gazing
 
