@@ -70,6 +70,8 @@ dev = [
     "isort>=5.0",
     "flake8>=3.9",
     "toml-to-req"
+    "hatch"
+    "twine"
 ]
 streamlit = [
     "streamlit",

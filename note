@@ -1,17 +1,5 @@
 
 
-
-
-[tool.hatch.version]
-path = "src/radixhopper/__about__.py"
-
-mypy
-"pytest",
-"pytest-cov",
-[tool.hatch.envs.default.scripts]
-test = "pytest {args:tests}"
-test-cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=radixhopper --cov=tests {args:tests}"
-
 [tool.coverage.run]
 source_pkgs = ["radixhopper", "tests"]
 branch = true
@@ -51,5 +39,3 @@ line_length = 88
 [tool.flake8]
 max-line-length = 88
 extend-ignore = "E203"
-
-ruff?
