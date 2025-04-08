@@ -1,7 +1,12 @@
+"""
+This module provides the RadixNumber class, which allows for flexible base conversion and representation of numbers.
+It supports operations on numbers in arbitrary bases, scientific notation, and repeating decimals.
+"""
+
 import re
 import sys
+import math
 from fractions import Fraction
-from math import gcd
 from typing import Optional, Union
 from decimal import Decimal
 from typeguard import typechecked
@@ -9,32 +14,58 @@ from error import BaseRangeError
 
 TOLERANCE = sys.float_info.epsilon * 2
 
-# ‌TODO: [NEXT VERS] handle none singular digit with list, maximal munch, and ambiguity check (should use a wrapper around the actual thing, instead of directly working with strings as digits)
-# TODO: [NEXT VERS] unary base easter egg
-
-# TODO: keep these for same base merging, @ and []
-# TODO: Improve errors (more helpful, like in check, what went wrong, what overlaps, ...)
-# TODO: add unit test (octal, hex, 0x, and sci notation, zero, ...)
+# ---- Workflow ---- #
 # TODO: nix?
-# TODO: github actions?
-# TODO: improve pydocs
+# TODO: github actions (`.github` and test offline using `act`)
+# ⭐ TODO: workflow move to uv, ruff, just, tox, act
+# TODO: isort, flake8, black as ruff
+# TODO: mypy
+
+# ---- Documentation ---- #
+# ⭐ TODO: improve pydocs (add example to em)
 # TODO: improve comments
+# ⭐ TODO: Improve Readme.md with examples and images and badges and re-read it
+
+# ---- Bugs ---- #
+# ⭐ TODO: chars should be limited to base bug for 0b17
+# TODO: one union of int and fraction might be extra 
+
+# ---- Features ---- #
 # TODO: operations
-# TODO: chars should be limited to base bug for 0b17
-# IDEA: call objects handle for some actions maybe
+# TODO: Improve errors (more helpful, like in check, what went wrong, what overlaps, ...)
+# TODO: [NEXT VERS] unary base easter egg
+# ‌TODO: [NEXT VERS] handle none singular digit with list, maximal munch, and ambiguity check (should use a wrapper around the actual thing, instead of directly working with strings as digits)
+
+# ---- Tests ---- #
+# ⭐ TODO: add unit test (octal, hex, 0x, and sci notation, zero, ...)
+# TODO: tox, pytest, pytest-cov
+
+# ---- Deployment ---- #
+# ⭐ TODO: Improved CLI (more flags like simple and ...)
+# TODO: Deploy on streamlit cloud, vercel, github action, netlify or smth else, on my subdomain.
 
 class RadixNumber:
+    """
+    A class to represent numbers in arbitrary bases with flexible conversion and representation options.
+
+    Constants:
+        _DEFAULT_DIGITS (str): Default set of digits for base representation.
+        SPECIAL_CHARS (str): Special characters allowed in number representations.
+
+    Internals:
+        frac (Fraction): Fractional value of the number.
+        case_sensitive (bool): Whether the digit set is case-sensitive.
+        digits (str): String of digits used for representation and conversion.
+        representation_base (Union[int, str]): Base for output representation (as int) or "fraction" (as str) for Fraction.
+    
+    Cached Internals:
+        getter: representation_value (str): Cached string representation of the number in the current base.
+            - _representation_cache_hash (int): Hash of the current state for cache validation.
+            - _representation_cache_value (str): Cached value of the string representation.
+            used for performance optimization.
+    """
     _DEFAULT_DIGITS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     SPECIAL_CHARS = "+-._[] "
-
-    # internals
-    # frac:                          fractional value
-    # case_sensitive:                case_sensitive
-    # digits:                        string of digits used for representation and conversion of string
-    # representation_base:           int or "fraction"
-    # getter | representation_value: a getter with buffer, of the string representation of the number in the base, for performance sake
-    # _representation_cache_hash:
-    # _representation_cache_value:
 
     @staticmethod
     @typechecked
@@ -44,19 +75,23 @@ class RadixNumber:
         case_sensitive: bool = False,
         digits: str = "0123456789",
         base: int = 10,
-    ):
+    ) -> str:
         """
-        Convert a scientific notation string to a fully written out decimal string.
+        Convert a scientific notation string to a fully written o t decimal string.
         Works with string operations only, without converting the mantissa to float (should convert exponent to int tho).
 
         Args:
-            sci_str (str): Scientific notation string (e.g., '1.23e+5', '4.56E-3')
+            sci_str (str): Scientific notation string (e.g., '1.23e+5', '4.56E-3').
             scientific_notation_char (str, optional): Characters used for scientific notation. Defaults to "eE".
-            case_sensitive (bool, optional): Whether to treat the input number and scientific notation chars in different radices or digit set as case-sensitive. Defaults to True.
-
+            case_sensitive (bool, optional): Whether to treat the input as case-sensitive. Defaults to False.
+            digits (str, optional): String of digits used for representation. Defaults to "0123456789".
+            base (int, optional): Base of the number system. Defaults to 10.
 
         Returns:
-            str: Fully written out decimal string or original string if invalid format
+            str: Fully written-out decimal string or original string if invalid format.
+
+        Raises:
+            ValueError: If scientific notation characters overlap with digits or if the input format is invalid.
         """
         if any(
             (char in digits) and (digits.index(char) <= base)
@@ -159,16 +194,42 @@ class RadixNumber:
 
         return result
 
-    def to(self, *, base=None, digits=None):  # base, digits
+    def to(self, *, base: Optional[int] = None, digits: Optional[str] = None) -> "RadixNumber":
+        """
+        Convert the number to a specified base and/or digit set.
+
+        Args:
+            base (Optional[int], optional): Target base for conversion. Defaults to None.
+            digits (Optional[str], optional): Target digit set for conversion. Defaults to None.
+
+        Returns:
+            RadixNumber: The updated RadixNumber instance.
+        """
         self.representation_base = base if base is not None else self.representation_base
         self.digits = digits if digits is not None else self.digits
         self.representation_value
         return self
 
     @staticmethod
+    @typechecked
     def _check_representation_base(
-        base: int, digits: str, representation_base: Optional[int], case_sensitive: bool
-    ):
+        base: int, digits: str, representation_base: Optional[Union[int, str]], case_sensitive: bool
+    ) -> Union[int, str]:
+        """
+        Validate and normalize the representation base.
+
+        Args:
+            base (int): Base of the number system.
+            digits (str): String of digits used for representation.
+            representation_base (Optional[Union[int, str]]): Desired representation base.
+            case_sensitive (bool): Whether the digit set is case-sensitive.
+
+        Returns:
+            Union[int, str]: Validated representation base.
+
+        Raises:
+            ValueError: If the representation base is invalid.
+        """
         if representation_base is None:
             return base
         elif isinstance(representation_base, int):
@@ -182,11 +243,23 @@ class RadixNumber:
         else:
             raise ValueError("representation_base should be int or 'fraction'")
 
-    # def _check_base(self, base: int):
-
     def _check_and_normalize_digits(
         self, *, digits: str, case_sensitive: bool, base: int
-    ):
+    ) -> str:
+        """
+        Validate and normalize the digit set.
+
+        Args:
+            digits (str): String of digits used for representation.
+            case_sensitive (bool): Whether the digit set is case-sensitive.
+            base (int): Base of the number system.
+
+        Returns:
+            str: Normalized digit set.
+
+        Raises:
+            ValueError: If the digit set is invalid.
+        """
         if not case_sensitive:
             digits = digits.upper()
 
@@ -221,7 +294,22 @@ class RadixNumber:
         digits: str,
         case_sensitive: bool,
         base: int,
-    ):
+    ) -> str:
+        """
+        Validate and normalize the scientific notation characters.
+
+        Args:
+            scientific_notation_char (str): Characters used for scientific notation.
+            digits (str): String of digits used for representation.
+            case_sensitive (bool): Whether the digit set is case-sensitive.
+            base (int): Base of the number system.
+
+        Returns:
+            str: Normalized scientific notation characters.
+
+        Raises:
+            ValueError: If the scientific notation characters overlap with digits.
+        """
         # normal digit?
         # 1. Convert scientific notation chars to uppercase if case insensitive
         if not case_sensitive:
@@ -243,8 +331,27 @@ class RadixNumber:
         return scientific_notation_char
 
     @staticmethod
-    def normalized_str_to_str_particles_and_check(value_string):
-        i_str, fp_str, fp_rep_str = "", "", ""
+    @typechecked
+    def normalized_str_to_str_particles_and_check(value_string: str) -> tuple[int, str, str, str]:
+        """
+        Normalize a string representation of a number and extract its components.
+
+        Args:
+            value_string (str): String representation of the number.
+
+        Returns:
+            tuple[str, str, str]: Tuple containing integer part, fractional part, and repeating fractional part.
+
+        Raises:
+            ValueError: If the input format is invalid.
+        """
+        sign, i_str, fp_str, fp_rep_str = 1, "", "", ""
+
+        if value_string.startswith("-"):
+            sign = -1
+            value_string = value_string[1:]
+        elif value_string.startswith("+"):
+            value_string = value_string[1:]
 
         if "." in value_string:
             i_str, fp_str = value_string.split(".")
@@ -261,10 +368,10 @@ class RadixNumber:
         else:
             i_str = value_string
 
-        return i_str, fp_str, fp_rep_str
+        return sign, i_str, fp_str, fp_rep_str
 
     @property
-    def representation_value(self):
+    def representation_value(self) -> str:
         """
         Get the string representation of self.frac in the current representation_base.
         Uses a cached value if the hash (computed from self.frac, self.digits, self.case_sensitive, and self.representation_base)
@@ -298,72 +405,35 @@ class RadixNumber:
         digits: str = _DEFAULT_DIGITS,  # TODO: List or Tuple as well, also weird multi char should be handled here if wanna be handled
         is_scientific_notation_str: bool = False,
         direct_conversion_of_float_decimal_to_frac: bool = False,
-        zero_b_o_x_leading_implicit_based: bool = False,  # if true, if str has a format of 0b 0x 0o it would be converted to the respective base
-        scientific_notation_char: str = "eE",  # used for scientific notation conversion
-        case_sensitive: bool = False,  # if true, the digits and scientific notation char are case sensitive
-        representation_base: Optional[
-            int
-        ] = None,  # None for default (using 10 for int, float, decimal, using `base` or b_o_x for str, using `"fraction"` for Fraction), int for base, "fraction" for fraction, this is used for showing output and cross operation propegation
-    ):
+        zero_b_o_x_leading_implicit_based: bool = False,
+        scientific_notation_char: str = "eE",
+        case_sensitive: bool = False,
+        representation_base: Optional[Union[int, str]] = None,
+    ) -> None:
         """
-        Initialize a RadixNumber from various input types with flexible base conversion options.
+        Initialize a RadixNumber instance with flexible base conversion options.
 
-        This constructor accepts a value that can be a string, integer, float, Decimal, Fraction, or another
-        RadixNumber. It converts the input into an internal Fraction representation, handling different numeric
-        formats such as standard, scientific, and many more. The provided base, digit set, and notation
-        options customize both parsing and output. The key feature is the ability to handle repeating decimals in
-        inputs and outputs, and first class support for numbers in any base with custom digits and arbitrary
-        precision.
-        The constructor also allows for automatic detection of base prefixes (0b, 0x, 0o) in string inputs, and
-        provides options for case sensitivity and scientific notation handling.
-
-        Parameters:
-            value (Union[str, int, float, Decimal, Fraction, RadixNumber]):
-                The number to be converted. If a RadixNumber is provided, it is returned as is.
-                Floats are treated as scientific notation strings.
-            base (int, optional):
-                The base used to interpret string inputs. This parameter is ignored if the input includes an
-                implicit base prefix (e.g. 0b, 0x, 0o) or when scientific notation is detected. Defaults to 10.
-            digits (str, optional):
-                String containing the characters representing the digits. Must not overlap with special characters
-                (e.g. '.', '_', '[', ']'). Defaults to the module’s _DEFAULT_DIGITS.
-            is_scientific_notation_str (bool, optional):
-                Indicates whether to treat the input string as a scientific notation string, triggering a conversion
-                to its full decimal representation. Defaults to False.
-            zero_b_o_x_leading_implicit_based (bool, optional):
-                If True, automatically detects prefixes (0b, 0x, 0o) in the input string and adjusts the base accordingly.
-                Defaults to False.
-            scientific_notation_char (str, optional):
-                Characters used to denote scientific notation. Must not overlap with digits in their active range.
-                Defaults to "eE".
-            case_sensitive (bool, optional):
-                Determines if the digit set and scientific notation characters are treated as case sensitive.
-                If False, they are normalized to uppercase. Defaults to False.
-            representation_base (int or str, optional):
-                Specifies the base for output and operation propagation. Use an integer for a fixed base or
-                "fraction" to preserve the Fraction representation. Defaults to None, inferring the base from the input.
+        Args:
+            value (Union[str, int, float, Decimal, Fraction, RadixNumber]): The number to be converted.
+            base (int, optional): Base for interpreting string inputs. Defaults to 10.
+            digits (str, optional): String of digits used for representation. Defaults to _DEFAULT_DIGITS.
+            is_scientific_notation_str (bool, optional): Whether the input is in scientific notation. Defaults to False.
+            direct_conversion_of_float_decimal_to_frac (bool, optional): Directly convert float/Decimal to Fraction. Defaults to False.
+            zero_b_o_x_leading_implicit_based (bool, optional): Detect base prefixes (0b, 0x, 0o) in input strings. Defaults to False.
+            scientific_notation_char (str, optional): Characters for scientific notation. Defaults to "eE".
+            case_sensitive (bool, optional): Whether the digit set is case-sensitive. Defaults to False.
+            representation_base (Optional[Union[int, str]], optional): Base for output representation. Defaults to None.
 
         Raises:
-            ValueError:
-                If the provided digit set contains any reserved special characters or if the input value contains
-                characters not found within the allowed digit set.
-
-        Notes:
-            - When the provided value is already a RadixNumber, it is directly assigned.
-            - Scientific notation strings are fully expanded using a dedicated conversion mechanism without
-            relying on floating-point arithmetic.
+            TypeError: If the input value is of an unsupported type.
+            ValueError: If the input format or digit set is invalid.
         """
-
         if not isinstance(value, (str, int, float, Decimal, Fraction, RadixNumber)):
             raise TypeError(
                 "value should be str, int, float, Decimal, Fraction or RadixNumber"
             )
 
         if isinstance(value, RadixNumber):
-            # frac:                          fractional value
-            # case_sensitive:                case_sensitive
-            # digits:                        string of digits used for representation and conversion of string
-            # representation_base:           int or "fraction"
             self.frac = value.frac
             self.case_sensitive = value.case_sensitive
             self.digits = value.digits
@@ -450,12 +520,13 @@ class RadixNumber:
                         base=base,
                     )
 
-                i_str, fp_str, fp_rep_str = (
+                sign, i_str, fp_str, fp_rep_str = (
                     self.normalized_str_to_str_particles_and_check(value)
                 )
                 self.frac = self._any_base_str_particles_to_frac(
                     i_str, fp_str, fp_rep_str, base, digits
                 )
+                self.frac = sign * self.frac
 
         if isinstance(value, Fraction):
             self.frac = value
@@ -463,7 +534,13 @@ class RadixNumber:
         # caches value for representation in the target base
         _ = self.representation_value
 
-    def __repr__(self):
+    def __repr__(self) -> str:
+        """
+        Return a string representation of the RadixNumber instance.
+
+        Returns:
+            str: String representation of the instance.
+        """
         numeric = "RadixNumber("
         if self.representation_base != "fraction":
             numeric += f"number={self.representation_value}, representation_base={self.representation_base}, digits={self.digits}, case_sensitive={self.case_sensitive}, "
@@ -483,11 +560,14 @@ class RadixNumber:
         if self.representation_base == "fraction":
             return rf"$$\frac{{{self.frac.numerator}}}{{{self.frac.denominator}}}$$"
 
-        int_part, frac_part, frac_rep_part = (
+        sign, int_part, frac_part, frac_rep_part = (
             self.normalized_str_to_str_particles_and_check(self.representation_value)
         )
         # Build the latex string parts
-        parts = [int_part]
+        parts = []
+        if sign == -1:
+            parts.append("-")
+        parts.append(int_part)
 
         # Add decimal point and fraction part if either fraction or repeating part exists
         if frac_part or frac_rep_part:
@@ -508,7 +588,13 @@ class RadixNumber:
             "text/plain": self.__repr__(),
         }
 
-    def __str__(self):
+    def __str__(self) -> str:
+        """
+        Return the string representation of the number in the current representation base.
+
+        Returns:
+            str: String representation of the number.
+        """
         if self.representation_base != "fraction":
             return self._my_frac_to_any_base_str(self.digits, self.representation_base)
         else:
@@ -518,16 +604,17 @@ class RadixNumber:
         return self._frac_to_any_base_str(self.frac, base, digits)
 
     @staticmethod
+    @typechecked
     def _frac_to_any_base_str(
-        frac: Fraction, to_base: int, digits: str
-    ):  # scientific notation
+        frac: Union[Fraction, int], to_base: int, digits: str
+    ) -> str:
         """
-        Converts a Fraction to a string representation in the specified base using given digit set.
+        Convert a Fraction to a string representation in the specified base.
 
         Args:
-            frac (Fraction): The fraction to convert
-            base_to (int): The target base for conversion (2-36)
-            digits_to (str): String containing the digits to use for the target base
+            frac (Fraction): The fraction to convert.
+            to_base (int): Target base for conversion.
+            digits (str): String of digits used for the target base.
 
         Returns:
             str: String representation of the number in the target base,
@@ -537,64 +624,68 @@ class RadixNumber:
             >>> RadixNumber._frac_to_any_base(Fraction(25, 4), 16, "0123456789ABCDEF")
             '6.4'
         """
+        # print(f"Converting {frac} to base {to_base} with digits {digits}")
         i_int, f_frac = RadixNumber._frac_extract_int_and_frac(frac)
-        int_out = RadixNumber._partial_frac_to_any_base_str(
+        # print(f"Integer part: {i_int}, Fractional part: {f_frac}")
+        sign_i, int_out = RadixNumber._partial_frac_to_any_base_str(
             i_int, to_base, True, digits
         )
-        fraction_part_out = RadixNumber._partial_frac_to_any_base_str(
+        # print(f"Integer part in base {to_base}: {int_out}")
+        sign_f, fraction_part_out = RadixNumber._partial_frac_to_any_base_str(
             f_frac, to_base, False, digits
         )
-        return (int_out if int_out else "0") + (("." + fraction_part_out) if fraction_part_out else "")
+        # print(f"Fractional part in base {to_base}: {fraction_part_out}")
+        if int_out == "":
+            int_out = "0"
+        if sign_f == -1 or sign_i == -1:
+            int_out = "-" + int_out
+        return (int_out) + (("." + fraction_part_out) if fraction_part_out else "")
 
     @staticmethod
+    @typechecked
     def _frac_extract_int_and_frac(fraction: Fraction) -> tuple[int, Fraction]:
         """
-        Splits a fraction into integer and fractional parts.
+        Split a fraction into integer and fractional parts.
 
         Args:
-            fraction (Fraction): The fraction to split
+            fraction (Fraction): The fraction to split.
 
         Returns:
-            tuple[int, Fraction]: A tuple containing:
-                - Integer part of the fraction
-                - Remaining fractional part as a Fraction
-
+            tuple[int, Fraction]: Integer part and fractional part as a Fraction.
         Example:
             >>> RadixNumber._frac_extract_int_and_frac(Fraction(7, 3))
             (2, Fraction(1, 3))
         """
-        i, frac = divmod(fraction.numerator, fraction.denominator)
-        return i, Fraction(frac, fraction.denominator)
+        i = math.trunc(fraction)  # Get the integer part
+        frac = fraction - i  # Get the fractional part
+        # i, frac = divmod(fraction.numerator, fraction.denominator) used to be used, but couldn't handle negative fractions correctly
+        return i, frac
 
     @staticmethod
+    @typechecked
     def _partial_frac_to_any_base_str(
-        frac: Fraction, to_base: int, intpart: bool, digits: str
-    ) -> str:
+        frac: Union[Fraction, int], to_base: int, intpart: bool, digits: str
+    ) -> tuple[int, str]:
         """
         Converts a Fraction to a string representation in any base, detecting repeating decimals.
         This function handles pure logic of the int and fractional part, with intpart flag to set
         which one will be processed at moment.
 
         Args:
-            x (Fraction): The fraction to convert
-            to_base (int): Target base for conversion (2-36)
-            intpart (bool): True if converting integer part, False for fractional part
-            digits (str): String containing digits to use for the target base
+            frac (Fraction): The fraction to convert.
+            to_base (int): Target base for conversion.
+            intpart (bool): True if converting integer part, False for fractional part.
+            digits (str): String of digits used for the target base.
 
         Returns:
-            str: String representation of the number in target base.
-                For fractional parts, repeating sequences are enclosed in square brackets.
-
-        Example:
-            >>> RadixNumber._frac_to_any_base_partial(Fraction(1, 3), 10, False, "0123456789")
-            '[3]'  # represents 0.333...
-            >>> RadixNumber._frac_to_any_base_partial(Fraction(25, 4), 16, True, "0123456789ABCDEF")
-            '6'    # integer part of 6.4 in base 16
+            str: String representation of the number in the target base.
         """
+        sign = 1 if frac >= 0 else -1
+        frac = abs(frac)
         buffer_rep, out_x = "", ""
         while frac > 0:
             if not intpart:
-                if gcd(frac.denominator, to_base) == 1:
+                if math.gcd(frac.denominator, to_base) == 1:
                     if buffer_rep == "":
                         buffer_rep = frac
                         out_x += "["
@@ -607,30 +698,25 @@ class RadixNumber:
                 else RadixNumber._frac_extract_int_and_frac(frac * to_base)[::-1]
             )
             out_x += digits[digit]
-        return out_x[::-1] if intpart else out_x
+        return sign, out_x[::-1] if intpart else out_x
 
     @staticmethod
+    @typechecked
     def _any_base_str_particles_to_frac(
         i: str, fp: str, fp_rep: str, from_base: int, digits: str
     ) -> Fraction:
         """
-        Converts a number from any base to a Fraction, handling integer, fractional and repeating parts.
+        Convert a number from any base to a Fraction, handling integer, fractional, and repeating parts.
 
         Args:
-            i (str): Integer part of the number
-            fp (str): Fractional part of the number (non-repeating)
-            fp_rep (str): Repeating part of the fractional portion
-            from_base (int): Base of the input number (2-36)
-            digits (str): String containing the digits used in the input number
+            i (str): Integer part of the number.
+            fp (str): Fractional part of the number (non-repeating).
+            fp_rep (str): Repeating part of the fractional portion.
+            from_base (int): Base of the input number.
+            digits (str): String of digits used in the input number.
 
         Returns:
-            Fraction: Exact representation of the input number as a Fraction
-
-        Example:
-            >>> RadixNumber._any_base_particles_to_frac("6", "4", "", 16, "0123456789ABCDEF")
-            Fraction(25, 4)
-            >>> RadixNumber._any_base_particles_to_frac("0", "3", "3", 10, "0123456789")
-            Fraction(1, 3)  # converts 0.333... to 1/3
+            Fraction: Exact representation of the input number as a Fraction.
         """
         fraction = Fraction()
 
@@ -660,9 +746,20 @@ class RadixNumber:
             if fp_rep
             else 0
         )
+        
         return fraction
 
     def compare_float(self, other: float, epsilon: float = TOLERANCE) -> bool:
+        """
+        Compare the RadixNumber with a float value within a tolerance.
+
+        Args:
+            other (float): The float value to compare.
+            epsilon (float, optional): Tolerance for comparison. Defaults to TOLERANCE.
+
+        Returns:
+            bool: True if the values are within the tolerance, False otherwise.
+        """
         return abs(float(self.frac) - other) < TOLERANCE
 
     def __eq__(self, other):  # int, RadixNumber, float, decimal
@@ -742,16 +839,9 @@ class RadixNumber:
         return (~self) * other
     
     def __floordiv__(self, other):
-        return self.bioperand_operatin_handle_strategy(other, lambda x, y: x // y)
+        return self.bioperand_operatin_handle_strategy(other, lambda x, y: Fraction(x // y,1))
     def __rfloordiv__(self, other): 
-        return self.bioperand_operatin_handle_strategy(other, lambda x, y: y // x)
-
-    def __divmod__(self, other): ...
-    def __rdivmod__(self, other): ...
-    def __mod__(self, other): ...
-    def __rmod__(self, other): ...
-    def __pow__(self, other): ...
-    def __rpow__(self, other): ...
+        return self.bioperand_operatin_handle_strategy(other, lambda x, y: Fraction(y // x,1))
 
     def __neg__(self):
         self.frac = -self.frac
@@ -776,47 +866,59 @@ class RadixNumber:
     def __int__(self):
         return int(self.frac)
 
-    # Not sure Dunders 
-
-    # and, rand
-    # xor, rxor
-    # or, ror
-
-    # not sure how this will be useful, with []
-    # and to() function already available
-    def __matmul__(self, base: int):
+    def __trunc__(self):
+        i_int, _ = RadixNumber._frac_extract_int_and_frac(self.frac)
+        self.frac = Fraction(i_int, 1)
+        return self
+    def __round__(self):
+        i_int, f_frac = RadixNumber._frac_extract_int_and_frac(self.frac)
+        self.frac = Fraction(i_int + round(f_frac), 1)
+        return self
+    def __floor__(self):
+        self.frac = Fraction(math.floor(self.frac), 1) #self.frac.numerator // self.frac.denominator
+        return self
+    def __ceil__(self):
+        self.frac = Fraction(math.ceil(self.frac), 1)
+        return self
+    def __bool__(self):
+        return bool(self.frac)
+    
+    def __matmul__(self, digits: str):
+        return self.to(digits=digits)
+    def __rmatmul__(self, smth):
         return NotImplemented
-    def __rmatmul__(self, base: int):
-        return NotImplemented
-
-    # def __trunc__(self):
-    # def __round__(self):
-    # def __floor__(self):
-    # def __ceil__(self):
-    # def __index__(self):
+    def __getitem__(self, base: Union[int, str]):
+        return self.to(base=base)
+    
     # def __hash__(self):
-    # def __bool__(self):
     # def __format__(self):
-    # def __next__(self):
-    # def __contains__(self):
-    # def __reversed__(self):
 
-    # not sure how to implement this
-    # should it be shift in base or base 2?
-    # how to handle sub 1 values?
-    # denom * base for r and nom * base for l?
-    # then what about info loss of real shift?
-    # more useful overload?
+    # gotta change up the int?
+
+    # def __divmod__(self, other): ...
+    # def __rdivmod__(self, other): ...
+    # def __mod__(self, other): ...
+    # def __rmod__(self, other): ...
+    # def __pow__(self, other):
+    #     return self.bioperand_operatin_handle_strategy(other, lambda x, y: x ** y) # untested
+    # def __rpow__(self, other): ...
+
     def __rshift__(self, n: int) -> "RadixNumber":
-        return NotImplemented
+        if n < 0:
+            return self.__lshift__(-n)
+        return self // (self.representation_base ** n)
 
     def __lshift__(self, n: int) -> "RadixNumber":
-        return NotImplemented
+        if n < 0:
+            return self.__rshift__(-n)
+        return self * (self.representation_base ** n)
 
     def __rrshift__(self, n: int) -> "RadixNumber":
-        return NotImplemented
+        if int(self) != self.frac:
+            raise ValueError("Cannot shift by a non-integer value")
+        n >> int(self)
 
     def __rlshift__(self, n: int) -> "RadixNumber":
-        return NotImplemented
-
-RadixNumber("1K", base=16, digits="0123456789ABCDEF", representation_base=10, case_sensitive=False).representation_value
+        if int(self) != self.frac:
+            raise ValueError("Cannot shift by a non-integer value")
+        n << int(self)

@@ -43,11 +43,10 @@ def convert_and_show(
         # --- Rich Formatting ---
         int_, frac, frac_rep = RadixNumber.normalized_str_to_str_particles_and_check(result)
         formatted_result = Text()
-        formatted_result.append(int_, style="bold green") # Added some color
+        formatted_result.append(int_, style="bold green") 
         if frac or frac_rep:
             formatted_result.append(".")
-        formatted_result.append(frac, style="bold green") # Added some color
-        # Using a distinct style for repeating part
+        formatted_result.append(frac, style="bold green") 
         formatted_result.append(frac_rep, style="bold cyan overline")
 
         console.print(Panel(formatted_result, title="[bold green]Conversion Result[/]", expand=False, border_style="green"))
@@ -55,13 +54,12 @@ def convert_and_show(
     except ValueError as ve:
         # Catch potential errors from RadixNumber (e.g., invalid digit for base)
         console.print(f"[bold red]Input Error:[/bold red] {str(ve)}")
-        raise typer.Exit(code=1) # Exit with a non-zero code to indicate failure
+        raise typer.Exit(code=1)
     except Exception as e:
         # Catch any other unexpected errors
         console.print(f"[bold red]Unexpected Error:[/bold red] {str(e)}")
-        # Keep traceback for debugging if needed, but hide locals for cleaner output
         console.print_exception(show_locals=False)
         raise typer.Exit(code=1)
 
 if __name__ == "__main__":
-    app() # Run the Typer application
+    app()

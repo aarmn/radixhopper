@@ -7,15 +7,19 @@
 
 🌟 Hop between number bases with ease! 🌟
 
-RadixHopper is a Python library for efficient radix-based number system conversions, specializing in cyclic fractions handling, for bases 2 through 36.
+RadixHopper is a Python library for efficient radix-based number system conversions, specializing in cyclic fractions handling, for arbitary bases with arbitary digits (defaults to `0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ` digit-set).
 
 ## ✨ Features
 
-- 🔢 Convert numbers between bases 2 to 36
+- 🔢 Convert numbers between radices 2 to 36 out-of-the-box, and more with custom digits!
+- 🧑‍🔬 Support for scientific notation 
+- 🦅 Arbitary precision operations, by leveraging fractions
+- 🖥️ Support for `0x`, `0o` and `0b` format 
 - 🔄 Handle cyclic fractions with grace
-- 🚀 Lightning-fast conversions
-- 🎨 Beautiful CLI interface
-- 🌈 Streamlit web app included
+- 🚀 Fast evaluations with conversion buffering
+- 📓 Jupyter notebook support
+- 🎨 Intuitive CLI interface
+<!-- - 🌈 Streamlit web app included -->
 
 ## 🌠 Installation
 
@@ -30,11 +34,27 @@ pip install radixhopper
 ### As a library
 
 ```python
-from radixhopper import BaseConverter, ConversionInput
+from radixhopper import RadixNumber
 
-input_data = ConversionInput(num="3.14", base_from=10, base_to=2)
-result = BaseConverter.base_convert(input_data)
-print(result)  # Output: 11.0[01000111101011100001]
+# Create a RadixNumber instance from a string in base 10
+num = RadixNumber("3.14", base=10)
+
+# Convert it to base 2
+result = num.to(base=2)
+
+# Print the representation in base 2
+print(f"{result!r}") # or simply `>>> result` or print(repr(result))
+# >>> RadixNumber(number=11.0[01000111101011100001], representation_base=2, digits=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ, case_sensitive=False, fraction=(157/50))
+
+# Access the string representation directly
+print(result) 
+# >>> 11.0[01000111101011100001]
+
+# Perform operations
+num2 = RadixNumber("1.1", base=2) # Represents 1.5 in base 10
+sum_result = num + num2 # Operations default to Fraction representation
+print(sum_result) # >>> 100.[10100011110101110000]
+print(sum_result.to(base=10)) # >>> 4.64
 ```
 
 ### CLI
@@ -43,13 +63,19 @@ print(result)  # Output: 11.0[01000111101011100001]
 radixhopper --num 3.14 --base-from 10 --base-to 2
 ```
 
-### Web App
+or simply
+
+```console
+radixhopper 3.14 10 2
+```
+
+<!-- ### Web App
 
 Run the Streamlit app:
 
 ```console
 streamlit run radixhopper/st.py
-```
+``` -->
 
 ## 🌟 Contributing
 
@@ -58,26 +84,6 @@ We welcome contributions! Please check our [Issues](https://github.com/aarmn/rad
 ## 📜 License
 
 `radixhopper` is distributed under the terms of the [MIT](https://spdx.org/licenses/MIT.html) license.
-
-## ✅ TODO
-
-- [x] Make it an actual pip package
-- [x] CLI interface using fire
-- [ ] Deploy on streamlit cloud, vercel, github action, netlify or smth else, on my subdomain.
-- [ ] Add a better hint in web GUI for signs and stuff
-- [ ] Improve Readme.md with examples and images and badges and re-read
-- [ ] Typing and DX of library improve
-- [ ] DevOps workflow setup
-  - [ ] `.github` and test offline using `act`
-  - [ ] mypy
-  - [ ] tox
-  - [ ] pytest
-  - [ ] pytest-cov
-  - [ ] black
-  - [ ] isort
-  - [ ] flake8
-  - [ ] just file improve
-- [ ] Improve data taking in and out structure
 
 ## 🌠 Star Gazing
 
