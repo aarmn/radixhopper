@@ -39,3 +39,206 @@ line_length = 88
 [tool.flake8]
 max-line-length = 88
 extend-ignore = "E203"
+
+[tool.pytest.ini_options]
+addopts = "--cov=radixhopper"
+testpaths = ["tests"]
+
+
+
+
+class TheRadixNumber:
+    """
+    Initialize a RadixNumber with a value and base.
+
+    Args:
+        value: The number value as string, int, float or Fraction
+        base: The base of the number (2-36)
+
+    Raises:
+        BaseRangeError: If base is outside the allowed range
+        DigitError: If any digit in the value is invalid for the given base
+        ParseError: If the value string format is invalid
+    """
+
+    @classmethod
+    def _validate_digits(cls, value: str, base: int) -> None:
+        valid_digits = cls.DIGITS[:base]
+        if not all(d in valid_digits for d in value if d not in ".[]-"):
+            raise DigitError(f"Invalid digit(s) for base {base}")
+
+    def _parse_to_fraction(self, value: Union[str, int, float, Fraction]) -> Fraction:
+        """Convert the input value to a Fraction for internal representation"""
+        if isinstance(value, Fraction):
+            return value
+
+        if isinstance(value, (int, float)):
+            return Fraction(value)
+
+        # String processing
+        # value = value.upper()
+        self._validate_digits(value, self.base)
+
+        int_part = ""
+        frac_part = ""
+        rep_part = ""
+
+        # Parse the string into components
+        if "." in value:
+            int_part, frac_str = value.split(".")
+            if "[" in frac_str and "]" in frac_str:
+                match = re.search(r"\[(.*?)\]", frac_str)
+                if not match:
+                    raise ParseError("Invalid repeating decimal format")
+                rep_part = match.group(1)
+                frac_part = frac_str[: frac_str.index("[")]
+            else:
+                frac_part = frac_str
+        else:
+            int_part = value
+
+        # Handle empty parts
+        int_part = int_part or "0"
+
+        # Convert to Fraction
+        fraction = Fraction()
+
+        # Integer part
+        for index, digit in enumerate(int_part):
+            if digit in "+-":  # Handle sign
+                continue
+            digit_value = self.DIGITS.index(digit)
+            fraction += digit_value * (self.base ** (len(int_part) - index - 1))
+
+        # Apply sign
+        if int_part.startswith("-"):
+            fraction = -fraction
+
+        # Fractional part
+        if frac_part:
+            for index, digit in enumerate(frac_part):
+                digit_value = self.DIGITS.index(digit)
+                fraction += Fraction(digit_value, self.base ** (index + 1))
+
+        # Repeating part
+        if rep_part:
+            repeating_value = Fraction(0)
+            for index, digit in enumerate(rep_part):
+                digit_value = self.DIGITS.index(digit)
+                repeating_value += Fraction(digit_value, self.base ** (index + 1))
+
+            # Formula for repeating decimal: x = n / (10^k * (10^p - 1))
+            # where n is the repeating part, k is the position where repetition starts,
+            # and p is the length of the repeating part
+            denominator = (self.base ** len(rep_part)) - 1
+            rep_fraction = Fraction(
+                repeating_value.numerator, repeating_value.denominator * denominator
+            )
+
+            # Adjust for the position after the decimal point
+            rep_fraction = Fraction(
+                rep_fraction.numerator,
+                rep_fraction.denominator * (self.base ** len(frac_part)),
+            )
+
+            fraction += rep_fraction
+
+        return fraction
+
+    def _int_and_frac_parts(self) -> Tuple[int, Fraction]:
+        """Split the number into integer and fractional parts"""
+        int_part = int(self._fraction)
+        frac_part = self._fraction - int_part
+        return int_part, frac_part
+
+    def __str__(self) -> str:
+        """
+        Convert the number to its string representation in its base
+
+        Returns:
+            String representation of the number in its base
+        """
+        int_part, frac_part = self._int_and_frac_parts()
+
+        int_str = self._convert_int_part(int_part, self.base)
+        frac_str = self._convert_frac_part(frac_part, self.base)
+
+        if frac_str:
+            return f"{int_str}.{frac_str}"
+        else:
+            return int_str
+
+    def __eq__(self, other) -> bool:
+        if isinstance(other, RadixNumber):
+            return self._fraction == other._fraction
+        return self._fraction == other
+
+    def __add__(self, other) -> "RadixNumber":
+        if isinstance(other, RadixNumber):
+            result = RadixNumber(self._fraction + other._fraction, self.base)
+            return result
+        return RadixNumber(self._fraction + other, self.base)
+
+    def __sub__(self, other) -> "RadixNumber":
+        if isinstance(other, RadixNumber):
+            result = RadixNumber(self._fraction - other._fraction, self.base)
+            return result
+        return RadixNumber(self._fraction - other, self.base)
+
+    def __mul__(self, other) -> "RadixNumber":
+        if isinstance(other, RadixNumber):
+            result = RadixNumber(self._fraction * other._fraction, self.base)
+            return result
+        return RadixNumber(self._fraction * other, self.base)
+
+    def __truediv__(self, other) -> "RadixNumber":
+        if isinstance(other, RadixNumber):
+            result = RadixNumber(self._fraction / other._fraction, self.base)
+            return result
+        return RadixNumber(self._fraction / other, self.base)
+
+    def __pow__(self, other) -> "RadixNumber":
+        if isinstance(other, RadixNumber):
+            result = RadixNumber(self._fraction**other._fraction, self.base)
+            return result
+        return RadixNumber(self._fraction**other, self.base)
+
+    def __neg__(self) -> "RadixNumber":
+        return RadixNumber(-self._fraction, self.base)
+
+    def __abs__(self) -> "RadixNumber":
+        return RadixNumber(abs(self._fraction), self.base)
+
+    def __rshift__(self, n: int) -> "RadixNumber":
+        """
+        Right shift operator - shifts decimal point right by n positions
+        Equivalent to multiplying by base^(-n)
+
+        Args:
+            n: Number of positions to shift right
+
+        Returns:
+            A new RadixNumber shifted right by n positions
+        """
+        if not isinstance(n, int):
+            raise TypeError("Right shift amount must be an integer")
+
+        shift_factor = Fraction(1, self.base**n)
+        return RadixNumber(self._fraction * shift_factor, self.base)
+
+    def __lshift__(self, n: int) -> "RadixNumber":
+        """
+        Left shift operator - shifts decimal point left by n positions
+        Equivalent to multiplying by base^n
+
+        Args:
+            n: Number of positions to shift left
+
+        Returns:
+            A new RadixNumber shifted left by n positions
+        """
+        if not isinstance(n, int):
+            raise TypeError("Left shift amount must be an integer")
+
+        shift_factor = self.base**n
+        return RadixNumber(self._fraction * shift_factor, self.base)

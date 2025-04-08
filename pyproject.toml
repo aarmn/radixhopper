@@ -25,7 +25,9 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dependencies = [
-    "pydantic>=2.8.2",   
+  "typeguard>=4.4.0",
+  "rich",
+  "result",
 ]
 
 [project.urls]
@@ -62,6 +64,10 @@ exclude_lines = [
   "if TYPE_CHECKING:",
 ]
 
+[tool.uv.workspace]
+members = ["wawa"]
+
+# ruff?
 [project.optional-dependencies]
 dev = [
     "pytest>=6.0",
@@ -69,8 +75,7 @@ dev = [
     "black>=21.0",
     "isort>=5.0",
     "flake8>=3.9",
-    "toml-to-req"
-    "hatch"
+    "hatch",
     "twine"
 ]
 streamlit = [
@@ -84,3 +89,7 @@ cli = [
 [project.scripts]
 radixhopper = "radixhopper.cli:main"
 radixhopper-gui = "radixhopper.gui_runner:run_streamlit_app"
+
+# [tool.pytest.ini_options]
+# addopts = "--cov=radixhopper"
+# testpaths = ["tests"]
