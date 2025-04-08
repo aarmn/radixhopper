@@ -1,14 +1,10 @@
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
 [project]
 name = "radixhopper"
 dynamic = ["version"]
 description = 'A Python library for efficient radix-based number system conversions, specializing in cyclic fractions handling, for bases 2 through 36.'
 readme = "README.md"
 requires-python = ">=3.8"
-license = "MIT"
+license = { file = "LICENSE" }
 keywords = ["radix", "number system", "conversion", "cyclic fractions", "bases", "math", "mathematics"]
 authors = [
   { name = "aarmn", email = "aarmn80@gmail.com" },
@@ -21,19 +17,43 @@ classifiers = [
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dependencies = [
   "typeguard>=4.4.0",
-  "rich",
-  "result",
+  "typer>=0.15.2",
 ]
 
 [project.urls]
 Documentation = "https://github.com/aarmn/radixhopper#readme"
 Issues = "https://github.com/aarmn/radixhopper/issues"
 Source = "https://github.com/aarmn/radixhopper"
+
+[project.scripts]
+radixhopper = "radixhopper.cli:main"
+# radixhopper-gui = "radixhopper.gui_runner:run_streamlit_app"
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "ruff",
+    "uv",
+    "hatch",
+]
+# gui = [
+#     "flet[all]>=0.27.0",
+# ]
+cli = [
+    "rich",
+    "fire>=0.4.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [tool.hatch.version]
 path = "src/radixhopper/__about__.py"
@@ -51,6 +71,7 @@ branch = true
 parallel = true
 omit = [
   "src/radixhopper/__about__.py",
+  "src/radixhopper/tooling.py",
 ]
 
 [tool.coverage.paths]
@@ -64,32 +85,8 @@ exclude_lines = [
   "if TYPE_CHECKING:",
 ]
 
-[tool.uv.workspace]
-members = ["wawa"]
-
-# ruff?
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
-    "pytest>=6.0",
-    "pytest-cov>=2.0",
-    "black>=21.0",
-    "isort>=5.0",
-    "flake8>=3.9",
-    "hatch",
-    "twine"
+    "ipykernel>=6.29.5",
+    "pip>=25.0.1",
 ]
-streamlit = [
-    "streamlit",
-]
-cli = [
-    "rich",
-    "fire>=0.4.0",
-]
-
-[project.scripts]
-radixhopper = "radixhopper.cli:main"
-radixhopper-gui = "radixhopper.gui_runner:run_streamlit_app"
-
-# [tool.pytest.ini_options]
-# addopts = "--cov=radixhopper"
-# testpaths = ["tests"]
