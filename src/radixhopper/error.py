@@ -21,7 +21,7 @@ class RadixError(Exception):
         from rich.table import Table
 
         error_panel = Panel(
-            self.message, 
+            self.message,
             title=f"[red]{self.__class__.__name__}[/red]",
             border_style="red"
         )
@@ -30,12 +30,12 @@ class RadixError(Exception):
             context_table = Table(show_header=False)
             context_table.add_column("Key", style="bold cyan")
             context_table.add_column("Value")
-            
+
             for key, value in self.context.items():
                 context_table.add_row(str(key), str(value))
-            
+
             return f"{error_panel}\n\n{context_table}"
-        
+
         return error_panel
 
 class BaseRangeError(RadixError):

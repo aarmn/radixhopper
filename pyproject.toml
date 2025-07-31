@@ -90,3 +90,15 @@ dev = [
     "ipykernel>=6.29.5",
     "pip>=25.0.1",
 ]
+
+[tool.ruff]
+# Match Black’s default line length
+line-length = 90
+
+# Select the rule codes you want; here we pick all Ruff’s defaults:
+# E,G (pycodestyle + pydocstyle), F (pyflakes), B (flake8-bugbear),
+# I (isort), Q (comprehension), etc.
+select = ["E", "F", "W", "C90", "B", "I", "Q"]
+
+# Enable auto-fix for supported rules (ruff --fix)
+fix = true

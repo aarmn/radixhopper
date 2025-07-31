@@ -3,13 +3,15 @@ This module provides the RadixNumber class, which allows for flexible base conve
 It supports operations on numbers in arbitrary bases, scientific notation, and repeating decimals.
 """
 
+import math
 import re
 import sys
-import math
+from decimal import Decimal
 from fractions import Fraction
 from typing import Optional, Union
-from decimal import Decimal
+
 from typeguard import typechecked
+
 from .error import BaseRangeError
 
 TOLERANCE = sys.float_info.epsilon * 2

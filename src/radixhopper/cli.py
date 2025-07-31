@@ -4,12 +4,14 @@ RadixHopper CLI - Base conversion tool with rich formatting.
 """
 
 import sys
-from typing import Optional, Tuple, Dict, Any
+from typing import Any, Dict
+
+from rich import box
 from rich.console import Console
 from rich.panel import Panel
-from rich.text import Text
 from rich.table import Table
-from rich import box
+from rich.text import Text
+
 from radixhopper import RadixNumber
 
 # TODO:
@@ -84,11 +86,11 @@ def infer_base_implicit_from_prefix(value: str) -> tuple[bool, int | None]:
         return False, None
 
     prefix = match.group(1).lower()
-    if prefix == 'b':
+    if prefix == "b":
         return True, 2
-    elif prefix == 'o':
+    elif prefix == "o":
         return True, 8
-    elif prefix == 'x':
+    elif prefix == "x":
         return True, 16
     return False, None
 

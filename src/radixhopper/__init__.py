@@ -1,6 +1,6 @@
-from .radixhopper import RadixNumber, TOLERANCE
-from .error import RadixError, BaseRangeError, DigitError, ParseError
 from .__about__ import __version__
+from .error import BaseRangeError, DigitError, ParseError, RadixError
+from .radixhopper import TOLERANCE, RadixNumber
 
 __all__ = [
     "RadixNumber",

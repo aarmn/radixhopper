@@ -7,7 +7,6 @@ default:
 # Run linting
 lint:
     ruff check .
-    black --check .
 
 # static type-check using mypy
 typecheck:
@@ -77,4 +76,4 @@ security-check:
 # Generate documentation
 generate-docs:
     # need some serious work on
-    pdoc --html --output-dir docs radixhopper 
+    pdoc --html --output-dir docs radixhopper

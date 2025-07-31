@@ -1,6 +1,7 @@
-import sys
 import functools
+import sys
 import warnings
+
 
 def deprecated(reason):
     if sys.version_info >= (3, 13):
