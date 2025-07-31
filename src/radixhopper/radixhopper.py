@@ -10,7 +10,7 @@ from fractions import Fraction
 from typing import Optional, Union
 from decimal import Decimal
 from typeguard import typechecked
-from error import BaseRangeError
+from .error import BaseRangeError
 
 TOLERANCE = sys.float_info.epsilon * 2
 
@@ -28,7 +28,8 @@ TOLERANCE = sys.float_info.epsilon * 2
 
 # ---- Bugs ---- #
 # ⭐ TODO: chars should be limited to base bug for 0b17
-# TODO: one union of int and fraction might be extra 
+# rich check
+# TODO: one union of int and fraction might be extra
 
 # ---- Features ---- #
 # TODO: operations
@@ -57,7 +58,7 @@ class RadixNumber:
         case_sensitive (bool): Whether the digit set is case-sensitive.
         digits (str): String of digits used for representation and conversion.
         representation_base (Union[int, str]): Base for output representation (as int) or "fraction" (as str) for Fraction.
-    
+
     Cached Internals:
         getter: representation_value (str): Cached string representation of the number in the current base.
             - _representation_cache_hash (int): Hash of the current state for cache validation.
@@ -122,7 +123,7 @@ class RadixNumber:
         spliter = lambda x: re.split( # NOQA
             f'[{"".join(re.escape(d) for d in set(scientific_notation_char))}]+',
             sci_str,
-        ) 
+        )
 
         # Split into mantissa and exponent
         parts = spliter(sci_str)
@@ -409,6 +410,7 @@ class RadixNumber:
         scientific_notation_char: str = "eE",
         case_sensitive: bool = False,
         representation_base: Optional[Union[int, str]] = None,
+        gentle_to_over_base: bool = False,
     ) -> None:
         """
         Initialize a RadixNumber instance with flexible base conversion options.
@@ -423,6 +425,8 @@ class RadixNumber:
             scientific_notation_char (str, optional): Characters for scientific notation. Defaults to "eE".
             case_sensitive (bool, optional): Whether the digit set is case-sensitive. Defaults to False.
             representation_base (Optional[Union[int, str]], optional): Base for output representation. Defaults to None.
+            gentle_to_over_base (bool, optional): Allow digits outside the base range without raising an error.
+                                Useful for research or experimental purposes. Defaults to False.
 
         Raises:
             TypeError: If the input value is of an unsupported type.
@@ -454,11 +458,11 @@ class RadixNumber:
         # do ALL value unrelated checks here
 
         if isinstance(value, (float, Decimal, int, str)):
-            if direct_conversion_of_float_decimal_to_frac:
+            if direct_conversion_of_float_decimal_to_frac: # why not always this? for int, float and Decimal?
                 self.frac = Fraction(value)
                 # break out of this if statement
             else:
-                if not isinstance(value, int):
+                if (not isinstance(value, int)) and (not isinstance(value, str)):
                     is_scientific_notation_str = True
 
                 value = str(value)
@@ -505,6 +509,29 @@ class RadixNumber:
                     self._check_and_normalize_digits(
                         digits=digits, case_sensitive=case_sensitive, base=base
                     )
+
+                # Validate that the value only contain digits which are in the part
+                # of the base (look if there is a digit in str which is not in the
+                # base-th first elements of digits string)
+                # Find digits that are over the base limit
+                over_base_digits = [d for d in value if d in digits and digits.index(d) >= base]
+
+                if over_base_digits and not gentle_to_over_base:
+                    if is_scientific_notation_str:
+                        # Normalize scientific_notation_char for comparison if needed
+                        sci_chars = scientific_notation_char
+                        if not case_sensitive:
+                            sci_chars = sci_chars.upper()
+
+                        # Check if all over-base digits are scientific notation characters
+                        if not all(char in sci_chars for char in over_base_digits):
+                            raise ValueError(
+                                "value contains digits outside the base range that are not scientific notation characters"
+                            )
+                    else:
+                        raise ValueError(
+                            "value contains digits outside the base range"
+                        )
 
                 self.representation_base = self._check_representation_base(
                     base, digits, representation_base, case_sensitive
@@ -577,10 +604,10 @@ class RadixNumber:
         # Add repeating part with overline if it exists
         if frac_rep_part:
             parts.append(f"\\overline{{{frac_rep_part}}}")
-        
+
         # Combine parts and add base subscript
         return f"$${''.join(parts)}_{{{self.representation_base}}}$$"
-    
+
     def _repr_mimebundle_(self, include=None, exclude=None):
         return {
             # "text/html": self._repr_html_(),
@@ -746,7 +773,7 @@ class RadixNumber:
             if fp_rep
             else 0
         )
-        
+
         return fraction
 
     def compare_float(self, other: float, epsilon: float = TOLERANCE) -> bool:
@@ -816,7 +843,7 @@ class RadixNumber:
             return self
         except (ValueError, TypeError):
             # Handle the case where other is not a valid number
-            raise ValueError(f"Invalid operation with {other}, of type, {type(other)}")            
+            raise ValueError(f"Invalid operation with {other}, of type, {type(other)}")
 
     def __add__(self, other):
         return self.bioperand_operatin_handle_strategy(other, lambda x, y: x + y)
@@ -837,10 +864,10 @@ class RadixNumber:
         return self.bioperand_operatin_handle_strategy(other, lambda x, y: x / y)
     def __rtruediv__(self, other):
         return (~self) * other
-    
+
     def __floordiv__(self, other):
         return self.bioperand_operatin_handle_strategy(other, lambda x, y: Fraction(x // y,1))
-    def __rfloordiv__(self, other): 
+    def __rfloordiv__(self, other):
         return self.bioperand_operatin_handle_strategy(other, lambda x, y: Fraction(y // x,1))
 
     def __neg__(self):
@@ -882,14 +909,14 @@ class RadixNumber:
         return self
     def __bool__(self):
         return bool(self.frac)
-    
+
     def __matmul__(self, digits: str):
         return self.to(digits=digits)
     def __rmatmul__(self, smth):
         return NotImplemented
     def __getitem__(self, base: Union[int, str]):
         return self.to(base=base)
-    
+
     # def __hash__(self):
     # def __format__(self):
 

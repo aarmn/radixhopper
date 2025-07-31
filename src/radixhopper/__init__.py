@@ -1,10 +1,13 @@
-# SPDX-FileCopyrightText: 2024-present Aarmn the limitless <aarmn80@gmail.com>
-#
-# SPDX-License-Identifier: MIT
+from .radixhopper import RadixNumber, TOLERANCE
+from .error import RadixError, BaseRangeError, DigitError, ParseError
+from .__about__ import __version__
 
-from .radixhopper import *
-
-__all__ = [ 
+__all__ = [
     "RadixNumber",
-    "TOLERANCE"
+    "TOLERANCE",
+    "__version__",
+    "RadixError",
+    "BaseRangeError",
+    "DigitError",
+    "ParseError"
 ]

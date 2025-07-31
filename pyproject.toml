@@ -32,7 +32,7 @@ Issues = "https://github.com/aarmn/radixhopper/issues"
 Source = "https://github.com/aarmn/radixhopper"
 
 [project.scripts]
-radixhopper = "radixhopper.cli:main"
+radixhopper = "radixhopper.cli:app"
 # radixhopper-gui = "radixhopper.gui_runner:run_streamlit_app"
 
 [project.optional-dependencies]
@@ -43,13 +43,13 @@ dev = [
     "uv",
     "hatch",
 ]
-# gui = [
-#     "flet[all]>=0.27.0",
-# ]
 cli = [
     "rich",
     "fire>=0.4.0",
 ]
+# gui = [
+#     "flet[all]>=0.27.0",
+# ]
 
 [build-system]
 requires = ["hatchling"]

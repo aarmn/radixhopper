@@ -1,10 +1,12 @@
-from enum import Enum
 from typing import Any
-from rich.console import Console
-from rich.traceback import install
 
-install(show_locals=True)
-console = Console()
+try:
+    from rich.console import Console
+    from rich.traceback import install
+    install(show_locals=True)
+    console = Console()
+except Exception:
+    pass
 
 class RadixError(Exception):
     """Base exception class for RadixNumber errors with rich formatting support"""
@@ -62,7 +64,3 @@ class ParseError(RadixError):
             message,
             {"value": value} if value is not None else None
         )
-
-class BaseRange(Enum):
-    MIN = 2
-    MAX = 36

@@ -7,25 +7,25 @@
 
 🌟 Hop between number bases with ease! 🌟
 
-RadixHopper is a Python library for efficient radix-based number system conversions, specializing in cyclic fractions handling, for arbitary bases with arbitary digits (defaults to `0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ` digit-set).
+RadixHopper is a python library and terminal utility for flexible numerical radix (a.k.a base) conversions, specializing in cyclic fractions handling, for arbitrary bases with arbitrary digits, with sane default and crazy levels of customization.
 
 ## ✨ Features
 
 - 🔢 Convert numbers between radices 2 to 36 out-of-the-box, and more with custom digits!
-- 🧑‍🔬 Support for scientific notation 
-- 🦅 Arbitary precision operations, by leveraging fractions
-- 🖥️ Support for `0x`, `0o` and `0b` format 
+- 🧑‍🔬 Support for scientific notation
+- 🦅 Arbitrary precision operations, by leveraging fractions
+- 🖥️ Support for `0x`, `0o` and `0b` format
 - 🔄 Handle cyclic fractions with grace
 - 🚀 Fast evaluations with conversion buffering
 - 📓 Jupyter notebook support
 - 🎨 Intuitive CLI interface
-<!-- - 🌈 Streamlit web app included -->
+- 🌈 And alot more...
 
 ## 🌠 Installation
 
 Sprinkle some magic into your Python environment:
 
-```console
+```sh
 pip install radixhopper
 ```
 
@@ -47,7 +47,7 @@ print(f"{result!r}") # or simply `>>> result` or print(repr(result))
 # >>> RadixNumber(number=11.0[01000111101011100001], representation_base=2, digits=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ, case_sensitive=False, fraction=(157/50))
 
 # Access the string representation directly
-print(result) 
+print(result)
 # >>> 11.0[01000111101011100001]
 
 # Perform operations
@@ -59,23 +59,15 @@ print(sum_result.to(base=10)) # >>> 4.64
 
 ### CLI
 
-```console
-radixhopper --num 3.14 --base-from 10 --base-to 2
+```sh
+radixhopper 3.14 --from 10 --to 2
 ```
 
 or simply
 
-```console
+```sh
 radixhopper 3.14 10 2
 ```
-
-<!-- ### Web App
-
-Run the Streamlit app:
-
-```console
-streamlit run radixhopper/st.py
-``` -->
 
 ## 🌟 Contributing
 
