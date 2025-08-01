@@ -6,9 +6,6 @@ on:
     tags:
       - "v*.*.*"
 
-  # Allow manual triggering from GitHub UI
-  workflow_dispatch:
-
 jobs:
   build:
     name: Build distribution packages
@@ -42,33 +39,9 @@ jobs:
           name: python-package-distributions
           path: dist/
 
-  publish-to-testpypi:
-    name: Publish to TestPyPI
-    needs: [build]
-    runs-on: ubuntu-latest
-    environment:
-      name: testpypi
-      url: https://test.pypi.org/p/radixhopper
-    permissions:
-      id-token: write # IMPORTANT: mandatory for trusted publishing
-
-    steps:
-      - name: Download all the dists
-        uses: actions/download-artifact@v4
-        with:
-          name: python-package-distributions
-          path: dist/
-
-      - name: Publish distribution to TestPyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          repository-url: https://test.pypi.org/legacy/
-          print-hash: true
-          verbose: true
-
   publish-to-pypi:
     name: Publish to PyPI
-    needs: [build, publish-to-testpypi] # Wait for TestPyPI to succeed
+    needs: [build] # Wait for TestPyPI to succeed
     runs-on: ubuntu-latest
     environment:
       name: pypi

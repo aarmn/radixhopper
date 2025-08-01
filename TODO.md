@@ -1,7 +1,7 @@
 # TODO
 
 ## Workflow
-- [ ] nix?
+- [ ] 🔮 nix flake
 - [ ] github actions (`.github` and test offline using `act`)
 - [ ] ⭐ workflow move to just, tox, act
 - [x] isort, flake8, black as ruff
@@ -18,12 +18,13 @@
 
 ## Code Quality
 - [ ] `__init__` of RadixNumber is hot mess
+- [ ] flag handling of CLI is hot mess
 
 ## Features
 - [ ] operations
 - [ ] Improve errors (more helpful, like in check, what went wrong, what overlaps, ...)
-- [ ] [NEXT VERS] unary base easter egg
-- [ ] [NEXT VERS] handle none singular digit with list, maximal munch, and ambiguity check (should use a wrapper around the actual thing, instead of directly working with strings as digits)
+- [ ] 🔮 unary base easter egg
+- [ ] 🔮 handle none singular digit with list, maximal munch, and ambiguity check (should use a wrapper around the actual thing, instead of directly working with strings as digits)
 
 ## Tests
 - [ ] ⭐ add unit test (octal, hex, 0x, and sci notation, zero, ...)

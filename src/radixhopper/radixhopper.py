@@ -3,49 +3,16 @@ This module provides the RadixNumber class, which allows for flexible base conve
 It supports operations on numbers in arbitrary bases, scientific notation, and repeating decimals.
 """
 
-import math
 import re
 import sys
-from decimal import Decimal
+import math
 from fractions import Fraction
 from typing import Optional, Union
-
+from decimal import Decimal
 from typeguard import typechecked
-
 from .error import BaseRangeError
 
 TOLERANCE = sys.float_info.epsilon * 2
-
-# ---- Workflow ---- #
-# TODO: nix?
-# TODO: github actions (`.github` and test offline using `act`)
-# ⭐ TODO: workflow move to uv, ruff, just, tox, act
-# TODO: isort, flake8, black as ruff
-# TODO: mypy
-
-# ---- Documentation ---- #
-# ⭐ TODO: improve pydocs (add example to em)
-# TODO: improve comments
-# ⭐ TODO: Improve Readme.md with examples and images and badges and re-read it
-
-# ---- Bugs ---- #
-# ⭐ TODO: chars should be limited to base bug for 0b17
-# rich check
-# TODO: one union of int and fraction might be extra
-
-# ---- Features ---- #
-# TODO: operations
-# TODO: Improve errors (more helpful, like in check, what went wrong, what overlaps, ...)
-# TODO: [NEXT VERS] unary base easter egg
-# ‌TODO: [NEXT VERS] handle none singular digit with list, maximal munch, and ambiguity check (should use a wrapper around the actual thing, instead of directly working with strings as digits)
-
-# ---- Tests ---- #
-# ⭐ TODO: add unit test (octal, hex, 0x, and sci notation, zero, ...)
-# TODO: tox, pytest, pytest-cov
-
-# ---- Deployment ---- #
-# ⭐ TODO: Improved CLI (more flags like simple and ...)
-# TODO: Deploy on streamlit cloud, vercel, github action, netlify or smth else, on my subdomain.
 
 class RadixNumber:
     """
