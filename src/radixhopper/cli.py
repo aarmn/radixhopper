@@ -14,13 +14,6 @@ from rich.text import Text
 
 from radixhopper import RadixNumber
 
-# TODO:
-# * Hide from and to, default to 0x,... and base 10, so one of the bases can always be implicit (from or to)
-# * Never asssume smth is flag, unless fully match the flag, has " to force number be a number (check for " not be in digits)
-# * Digits passing by param optional (using flag)
-# * Type check and beautify but dont use a 3rd party if it doesnt match the purpose of the project
-# * In help ensure user knows about the syntax of numbers and stuff
-
 # ------- Setup -------
 console = Console()
 

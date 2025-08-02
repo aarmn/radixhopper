@@ -1,30 +1,37 @@
 # TODO
 
 ## Workflow
-- [ ] 🔮 nix flake
-- [ ] github actions (`.github` and test offline using `act`)
-- [ ] ⭐ workflow move to just, tox, act
+- [ ] Nix flake
+- [ ] github actions for release
+- [ ] github actions for code linting and stuff
+- [ ] github actions for testing (after adding them lol)
+- [ ] ⭐ Impl just or act for the project offline workflows (aside from the trusted publisher I guess, justfile reiterate or delete)
+- [x] github actions for pypi publish
 - [x] isort, flake8, black as ruff
 
 ## Documentation
-- [ ] ⭐ improve pydocs (add example to em)
+- [ ] ⭐ improve pydocs (add example to them)
 - [ ] improve comments
-- [ ] ⭐ Improve Readme.md with examples and images and badges and re-read it
+- [ ] Make a cool logo
+- [ ] ⭐ Improve Readme.md (more examples, asciinema, some cool badges, proof read, make a cool logo)
 
 ## Bugs
-- [x] ⭐ chars should be limited to base bug for 0b17
-- [ ] rich check
-- [ ] one union of int and fraction might be extra
+- [x] chars should be limited to base bug for 0b17
+- [ ] rich existence in installer check (assuming cli mode option is checked)
 
 ## Code Quality
 - [ ] `__init__` of RadixNumber is hot mess
 - [ ] flag handling of CLI is hot mess
+- [ ] make a POSET of operations order in init code
+- [ ] why I chose to set default base to 10? why not None? (to diff between explicit and non-explicit base 10)
+- [ ] get rid of one of the duo of typeguard and typer if possible
 
 ## Features
-- [ ] operations
+- [ ] extend operations
 - [ ] Improve errors (more helpful, like in check, what went wrong, what overlaps, ...)
-- [ ] 🔮 unary base easter egg
-- [ ] 🔮 handle none singular digit with list, maximal munch, and ambiguity check (should use a wrapper around the actual thing, instead of directly working with strings as digits)
+- [ ] unary base easter egg
+- [ ] research other bases (e.g.: negative, fractional, complex, ANS, RNS, etc.)
+- [ ] handle none singular digit with list, maximal munch, and ambiguity check (should use a wrapper around the actual thing, instead of directly working with strings as digits)
 
 ## Tests
 - [ ] ⭐ add unit test (octal, hex, 0x, and sci notation, zero, ...)
