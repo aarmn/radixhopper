@@ -5,31 +5,48 @@
 
 -----
 
-<div style="display: flex; align-items: flex-start;">
-  <div style="flex: 1;">
-    <div style="float: right; margin: 0 0 10px 10px; max-width: 40%;">
-      <img src="logo.png" alt="RadixHopper Logo" style="max-width: 100%; height: auto;">
-    </div>
-    <p>🌟 Hop between number bases with ease! 🌟</p>
-    <p>RadixHopper is a python library and terminal utility for flexible numerical radix (a.k.a base) conversions, specializing in cyclic fractions handling, for arbitrary bases with arbitrary digits, with sane default and crazy levels of customization.</p>
-    <h2>✨ Features</h2>
-    <ul>
-      <li>🔢 Convert numbers between radices 2 to 36 out-of-the-box, and more with custom digits!</li>
-      <li>🧑‍🔬 Support for scientific notation</li>
-      <li>🦅 Arbitrary precision operations, by leveraging fractions</li>
-      <li>🖥️ Support for `0x`, `0o` and `0b` format</li>
-      <li>🔄 Handle cyclic fractions with grace</li>
-      <li>🚀 Fast evaluations with conversion buffering</li>
-      <li>📓 Jupyter notebook support</li>
-      <li>🎨 Intuitive CLI interface</li>
-      <li>🌈 And alot more...</li>
-    </ul>
-    <div style="clear: both;"></div>
-    
-  </div>
-</div>
+<!-- <div>
+  <img src="logo.png" alt="RadixHopper Logo" align="right" width="40%">
+  <p>🌟 Hop between number bases with ease! 🌟</p>
+  <p>RadixHopper is a python library and terminal utility...</p>
+  <h2>✨ Features</h2>
+  <ul>
+    <li>🔢 Convert numbers between radices 2 to 36 out-of-the-box, and more with custom digits!</li>
+    <li>🧑‍🔬 Support for scientific notation</li>
+    <li>🦅 Arbitrary precision operations, by leveraging fractions</li>
+    <li>🖥️ Support for `0x`, `0o` and `0b` format</li>
+    <li>🔄 Handle cyclic fractions with grace</li>
+    <li>🚀 Fast evaluations with conversion buffering</li>
+    <li>📓 Jupyter notebook support</li>
+    <li>🎨 Intuitive CLI interface</li>
+    <li>🌈 And a lot more...</li>
+  </ul>
+  <div style="clear: both;"></div>
+</div> -->
 
-
+<table>
+  <tr>
+    <td>
+      <p>🌟 Hop between number bases with ease! 🌟</p>
+      <p>RadixHopper is a python library and terminal utility for flexible numerical radix (a.k.a base) conversions, specializing in cyclic fractions handling, for arbitrary bases with arbitrary digits, with sane default and crazy levels of customization.</p>
+      <h2>✨ Features</h2>
+      <ul>
+        <li>🔢 Convert numbers between radices 2 to 36 out-of-the-box, and more with custom digits!</li>
+        <li>🧑‍🔬 Support for scientific notation</li>
+        <li>🦅 Arbitrary precision operations, by leveraging fractions</li>
+        <li>🖥️ Support for `0x`, `0o` and `0b` format</li>
+        <li>🔄 Handle cyclic fractions with grace</li>
+        <li>🚀 Fast evaluations with conversion buffering</li>
+        <li>📓 Jupyter notebook support</li>
+        <li>🎨 Intuitive CLI interface</li>
+        <li>🌈 And a lot more...</li>
+      </ul>
+    </td>
+    <td align="right" width="40%">
+      <img src="logo.png" alt="RadixHopper Logo" width="100%">
+    </td>
+  </tr>
+</table>
 
 ## 🌠 Installation
 
